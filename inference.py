@@ -7,15 +7,17 @@ from glob import glob
 import torch, face_detection
 from models import Wav2Lip
 
+import types
+
 parser = argparse.ArgumentParser(description='Inference code to lip-sync videos in the wild using Wav2Lip models')
 
 parser.add_argument('--checkpoint_path', type=str, 
-					help='Name of saved checkpoint to load weights from', required=True)
+					help='Name of saved checkpoint to load weights from', default='wav2lip.pth')
 
 parser.add_argument('--face', type=str, 
-					help='Filepath of video/image that contains faces to use', required=True)
+					help='Filepath of video/image that contains faces to use')
 parser.add_argument('--audio', type=str, 
-					help='Filepath of video/audio file to use as raw audio source', required=True)
+					help='Filepath of video/audio file to use as raw audio source')
 parser.add_argument('--outfile', type=str, help='Video path to save result. See default for an e.g.', 
 								default='results/result_voice.mp4')
 
@@ -49,8 +51,8 @@ parser.add_argument('--rotate', default=False, action='store_true',
 args = parser.parse_args()
 args.img_size = 96
 
-if os.path.isfile(args.face) and args.face.split('.')[1] in ['jpg', 'png', 'jpeg']:
-	args.static = True
+#if os.path.isfile(args.face) and args.face.split('.')[1] in ['jpg', 'png', 'jpeg']:
+#	args.static = True
 
 def get_smoothened_boxes(boxes, T):
 	for i in range(len(boxes)):
@@ -149,7 +151,7 @@ def datagen(frames, mels):
 		yield img_batch, mel_batch, frame_batch, coords_batch
 
 mel_step_size = 16
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
+device = 'cpu'#'cuda' if torch.cuda.is_available() else 'cpu'
 print('Using {} for inference.'.format(device))
 
 def _load(checkpoint_path):
@@ -173,7 +175,9 @@ def load_model(path):
 	model = model.to(device)
 	return model.eval()
 
-def main():
+def main(_args):
+	global args
+	args = types.SimpleNamespace(**dict(args.__dict__, **_args))
 	if not os.path.isfile(args.face):
 		fnames = list(glob(os.path.join(args.face, '*.jpg')))
 		sorted_fnames = sorted(fnames, key=lambda f: int(os.path.basename(f).split('.')[0]))

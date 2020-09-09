@@ -1,3 +1,4 @@
+If you are looking for the gui, take a look at the [gui branch](https://github.com/dunnousername/Wav2Lip/tree/gui).
 # **Wav2Lip**: *Accurately Lip-syncing Videos In The Wild*
 
 This code is part of the paper: _A Lip Sync Expert Is All You Need for Speech to Lip Generation In the Wild_ published at ACM Multimedia 2020. 

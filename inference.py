@@ -9,6 +9,8 @@ from models import Wav2Lip
 
 import types
 
+cached_model = {}
+
 parser = argparse.ArgumentParser(description='Inference code to lip-sync videos in the wild using Wav2Lip models')
 
 parser.add_argument('--checkpoint_path', type=str, 
@@ -63,7 +65,7 @@ def get_smoothened_boxes(boxes, T):
 		boxes[i] = np.mean(window, axis=0)
 	return boxes
 
-def face_detect(images):
+def face_detect(images, device):
 	detector = face_detection.FaceAlignment(face_detection.LandmarksType._2D, 
 											flip_input=False, device=device)
 
@@ -102,14 +104,14 @@ def face_detect(images):
 	del detector
 	return results 
 
-def datagen(frames, mels):
+def datagen(frames, mels, device):
 	img_batch, mel_batch, frame_batch, coords_batch = [], [], [], []
 
 	if args.box[0] == -1:
 		if not args.static:
-			face_det_results = face_detect(frames) # BGR2RGB for CNN face detection
+			face_det_results = face_detect(frames, device) # BGR2RGB for CNN face detection
 		else:
-			face_det_results = face_detect([frames[0]])
+			face_det_results = face_detect([frames[0]], device)
 	else:
 		print('Using the specified bounding box instead of face detection...')
 		y1, y2, x1, x2 = args.box
@@ -151,10 +153,10 @@ def datagen(frames, mels):
 		yield img_batch, mel_batch, frame_batch, coords_batch
 
 mel_step_size = 16
-device = 'cpu'#'cuda' if torch.cuda.is_available() else 'cpu'
-print('Using {} for inference.'.format(device))
+#device = 'cpu'#'cuda' if torch.cuda.is_available() else 'cpu'
+#print('Using {} for inference.'.format(device))
 
-def _load(checkpoint_path):
+def _load(checkpoint_path, device):
 	if device == 'cuda':
 		checkpoint = torch.load(checkpoint_path)
 	else:
@@ -162,10 +164,10 @@ def _load(checkpoint_path):
 								map_location=lambda storage, loc: storage)
 	return checkpoint
 
-def load_model(path):
+def _load_model(path, device):
 	model = Wav2Lip()
 	print("Load checkpoint from: {}".format(path))
-	checkpoint = _load(path)
+	checkpoint = _load(path, device)
 	s = checkpoint["state_dict"]
 	new_s = {}
 	for k, v in s.items():
@@ -175,7 +177,15 @@ def load_model(path):
 	model = model.to(device)
 	return model.eval()
 
-def main(_args):
+def load_model(path, device):
+	if device in cached_model.keys():
+		return cached_model[device]
+	else:
+		global cached_model
+		cached_model[device] = _load_model(path, device)
+		return cached_model[device]
+
+def main(_args, model, device):
 	global args
 	args = types.SimpleNamespace(**dict(args.__dict__, **_args))
 	if not os.path.isfile(args.face):
@@ -244,14 +254,11 @@ def main(_args):
 	full_frames = full_frames[:len(mel_chunks)]
 
 	batch_size = args.wav2lip_batch_size
-	gen = datagen(full_frames.copy(), mel_chunks)
+	gen = datagen(full_frames.copy(), mel_chunks, device)
 
 	for i, (img_batch, mel_batch, frames, coords) in enumerate(tqdm(gen, 
 											total=int(np.ceil(float(len(mel_chunks))/batch_size)))):
 		if i == 0:
-			model = load_model(args.checkpoint_path)
-			print ("Model loaded")
-
 			frame_h, frame_w = full_frames[0].shape[:-1]
 			out = cv2.VideoWriter('temp/result.avi', 
 									cv2.VideoWriter_fourcc(*'DIVX'), fps, (frame_w, frame_h))

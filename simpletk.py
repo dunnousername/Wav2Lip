@@ -5,6 +5,7 @@
 import asyncio
 import tkinter as tk
 import tkinter.ttk as ttk
+import tkinter.scrolledtext as tkst
 
 class _AsyncTaskWrapper:
     def __init__(self, func):
@@ -83,6 +84,9 @@ class SimpleMain(SimpleTk):
     def call(self):
         self.tk.start()
 
+    def update(self):
+        self.tk.update()
+
 class SimpleButton(SimpleTk):
     def wrap(self, func, text='Button', stop_text=None):
         stop_text = stop_text or text
@@ -95,6 +99,47 @@ class SimpleButton(SimpleTk):
                 element.config(text=text)
         element.config(command=wrapper)
         return element
+
+class SimpleText(SimpleTk):
+    def wrap(self, func):
+        text = func()
+        _tk = tkst.ScrolledText(master=self.master)
+        _tk.insert(tk.END, text)
+        _tk.config(state=tk.DISABLED)
+        return _tk
+
+    def puts(self, text):
+        self.tk.config(state=tk.NORMAL)
+        self.tk.insert(tk.END, text)
+        self.tk.config(state=tk.DISABLED)
+
+    def clear(self):
+        self.tk.config(state=tk.NORMAL)
+        self.tk.delete(1.0, tk.END)
+        self.tk.config(state=tk.DISABLED)
+
+    def call(self, text):
+        self.puts(text)
+
+class SimpleCheckbox(SimpleTk):
+    def wrap(self, func, text='Checkbox'):
+        value = func()
+        self.var = tk.IntVar()
+        self.var.set(1 if bool(value) else 0)
+        _tk = ttk.Checkbutton(master=self.master, text=text, variable=self.var)
+        return _tk
+
+    def get(self):
+        return bool(self.var.get())
+
+    def __bool__(self):
+        return self.get()
+
+    def call(self):
+        return self.get()
+
+    def set_checked(self, value):
+        self.var.set(1 if bool(value) else 0)
 
 # tests
 

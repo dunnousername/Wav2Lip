@@ -17,3 +17,4 @@ evaluation/test_filelists/lr*.txt
 wav2lip.pth
 venv/
 facedetection/detection/sfd/s3fd.pth
+model/

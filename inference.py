@@ -12,7 +12,7 @@ import types
 parser = argparse.ArgumentParser(description='Inference code to lip-sync videos in the wild using Wav2Lip models')
 
 parser.add_argument('--checkpoint_path', type=str, 
-					help='Name of saved checkpoint to load weights from', default='wav2lip.pth')
+					help='Name of saved checkpoint to load weights from', default='model/wav2lip.pth')
 
 parser.add_argument('--face', type=str, 
 					help='Filepath of video/image that contains faces to use')

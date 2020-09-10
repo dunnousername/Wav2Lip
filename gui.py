@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from tkinter.filedialog import askopenfilename, asksaveasfilename
 from simpletk import *
 from inference import main

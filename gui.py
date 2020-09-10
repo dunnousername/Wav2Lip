@@ -25,7 +25,7 @@ def select_audio():
 @SimpleButton(gui_main, text='Select image')
 def select_image():
     global image
-    new = askopenfilename(filetypes=[('.png files', '*.png')])
+    new = askopenfilename(filetypes=[('image files', '*.png;*.jpg;*.jpeg')])
     if new and not new.isspace():
         print('setting image file to {}'.format(new))
         image = new.strip()
@@ -34,10 +34,10 @@ def select_image():
 @SimpleButton(gui_main, text='Select output')
 def select_save():
     global save
-    new = asksaveasfilename(filetypes=[('.mkv files', '*.mkv')])
+    new = asksaveasfilename(filetypes=[('.mp4 files', '*.mp4')])
     if new and not new.isspace():
-        if not new.endswith('.mkv'):
-            new = '{}.mkv'.format(new)
+        if not new.endswith('.mp4'):
+            new = '{}.mp4'.format(new)
         print('setting output file to {}'.format(new))
         save = new.strip()
 

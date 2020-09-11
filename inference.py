@@ -8,6 +8,7 @@ import torch, face_detection
 from models import Wav2Lip
 
 import types
+import shlex
 
 cached_model = {}
 
@@ -52,9 +53,6 @@ parser.add_argument('--rotate', default=False, action='store_true',
 
 args = parser.parse_args()
 args.img_size = 96
-
-#if os.path.isfile(args.face) and args.face.split('.')[1] in ['jpg', 'png', 'jpeg']:
-#	args.static = True
 
 def get_smoothened_boxes(boxes, T):
 	for i in range(len(boxes)):
@@ -153,8 +151,6 @@ def datagen(frames, mels, device):
 		yield img_batch, mel_batch, frame_batch, coords_batch
 
 mel_step_size = 16
-#device = 'cpu'#'cuda' if torch.cuda.is_available() else 'cpu'
-#print('Using {} for inference.'.format(device))
 
 def _load(checkpoint_path, device):
 	if device == 'cuda':

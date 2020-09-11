@@ -21,14 +21,14 @@ def text():
     return '\n'.join([
         'GUI written by dunnousername#8672 (https://github.com/dunnousername/Wav2Lip)',
         'Wav2Lip originally by Rudrabha (https://github.com/Rudrabha/Wav2Lip)',
-        'GUI Version 0.1.1'
+        'GUI Version 0.1.2'
     ]) + '\n'
 
 @grid(padx=15, pady=3, row=0)
 @SimpleButton(gui_main, text='Select audio')
 def select_audio():
     global audio
-    new = askopenfilename(filetypes=[('.wav files', '*.wav')])
+    new = askopenfilename(filetypes=[('audio files', '*.wav;*.mp3;*.mka')])
     if new and not new.isspace():
         text('setting audio file to {}\n'.format(new))
         audio = new.strip()

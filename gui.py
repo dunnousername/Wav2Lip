@@ -34,12 +34,12 @@ def select_audio():
         audio = new.strip()
 
 @grid(padx=15, pady=3, row=1)
-@SimpleButton(gui_main, text='Select image')
+@SimpleButton(gui_main, text='Select image or video')
 def select_image():
     global image
-    new = askopenfilename(filetypes=[('image files', '*.png;*.jpg;*.jpeg')])
+    new = askopenfilename(filetypes=[('image or video files', '*.png;*.jpg;*.jpeg;*.mp4;*.mkv;*.mov')])
     if new and not new.isspace():
-        text('setting image file to {}\n'.format(new))
+        text('setting input file to {}\n'.format(new))
         image = new.strip()
 
 @grid(padx=15, pady=3, row=2)

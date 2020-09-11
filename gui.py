@@ -21,7 +21,7 @@ def text():
     return '\n'.join([
         'GUI written by dunnousername#8672 (https://github.com/dunnousername/Wav2Lip)',
         'Wav2Lip originally by Rudrabha (https://github.com/Rudrabha/Wav2Lip)',
-        'GUI Version 0.1.0'
+        'GUI Version 0.1.1'
     ]) + '\n'
 
 @grid(padx=15, pady=3, row=0)
